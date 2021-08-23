@@ -18,6 +18,24 @@ def prep_titanic(titanic):
 
     return titanic
 
+def prep_telco(customers):
+    customers.drop_duplicates(inplace = True)
+    #Convert total_charges to float
+    customers.total_charges = customers.total_charges.str.strip()
+    customers.total_charges = customers.total_charges.str.replace('[$,]','')
+    customers.total_charges = pd.to_numeric(customers['total_charges'])
+    #Select the categorical columns that need dummy variables (ignoring passenger_id)
+    cat_cols = customers.select_dtypes('object').columns[1:]
+    #Create dummy variables for categorical variables and concat
+    dummy_df = pd.get_dummies(customers[cat_cols], dummy_na = False, drop_first = True)
+    customers = pd.concat([customers, dummy_df], axis = 1)
+    #Drop unnecessary columns
+    customers.drop(columns = cat_cols, inplace = True)
+    customers.drop(columns = ['customer_id','phone_service_Yes','contract_type_id', 'contract_type_id.1', 'internet_service_type_id', 'internet_service_type_id.1', 'payment_type_id', 'payment_type_id.1'], inplace = True)
+    
+    return customers
+
+
 def train_validate_test_split(df, target, seed = 123):
     '''
     This function takes in a dataframe, the name of the target variable
