@@ -32,7 +32,8 @@ def prep_telco(customers):
     #Drop unnecessary columns
     customers.drop(columns = cat_cols, inplace = True)
     customers.drop(columns = ['customer_id','phone_service_Yes','contract_type_id', 'contract_type_id.1', 'internet_service_type_id', 'internet_service_type_id.1', 'payment_type_id', 'payment_type_id.1'], inplace = True)
-    
+    #Rename churn_Yes column
+    customers.rename(columns = {'churn_Yes':'churn'}, inplace = True)
     return customers
 
 
