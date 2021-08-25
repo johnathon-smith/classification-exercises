@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
 
 def prep_iris(iris):
     iris.drop(columns = ['species_id','measurement_id'], inplace = True)
@@ -14,6 +15,24 @@ def prep_titanic(titanic):
     dummy_df = pd.get_dummies(titanic[['sex','embark_town']], dummy_na=False, drop_first=[True, True])
     titanic = pd.concat([titanic, dummy_df], axis = 1)
     titanic.drop(columns = ['sex', 'embark_town','age', 'passenger_id', 'embarked','class','deck'], inplace = True)
+    titanic.rename(columns = {'sibsp':'num_sib_and_sp', 'parch':'num_par_and_ch'}, inplace = True)
+
+    return titanic
+
+def prep_titanic_with_age(titanic):
+    #Fill missing embark_town values with 'Southampton'
+    titanic.embark_town.fillna('Southampton', inplace = True)
+
+    #Get dummies
+    dummy_df = pd.get_dummies(titanic[['sex','embark_town']], dummy_na=False, drop_first=[True, True])
+    titanic = pd.concat([titanic, dummy_df], axis = 1)
+
+    #Fill in missing age values with mean using Simple Imputer
+    imputer = SimpleImputer(strategy='mean')
+    titanic['age'] = imputer.fit_transform(titanic[['age']])
+
+    #Drop and rename columns as needed
+    titanic.drop(columns = ['sex', 'embark_town', 'passenger_id', 'embarked','class','deck'], inplace = True)
     titanic.rename(columns = {'sibsp':'num_sib_and_sp', 'parch':'num_par_and_ch'}, inplace = True)
 
     return titanic
